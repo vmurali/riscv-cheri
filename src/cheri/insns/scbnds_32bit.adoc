@@ -47,10 +47,10 @@ include::malformed_cs1_clear_tag.adoc[]
 <<SCBNDSI>> decodes the 9-bit immediate value `imm[8:0]` to the requested length `result` as follows:
 
 * If `imm[8:0] == 0`, `result` is `4096`.
-* If `imm[8] == 0` and `imm[7:0] > 0`, `result[7:0] = imm[7:0]` with all other bits set to `0`.
+* If `imm[8] == 0` and `imm[7:0] != 0`, `result[7:0] = imm[7:0]` with all other bits set to `0`.
 * If `imm[8] == 1`, `result` is decoded as follows, with all other bits set to `0`:
-** If `imm[7:4] != 0000`, then `result[11:4] = imm[7:0]`.
-** If `imm[7:4] == 0000`, then `result[8] = 1`, `result[7:4] = imm[3:0]`, `result[3] = 1`.
+** If `imm[7:5] == 0`, then `result[8:3] = {1'b1, imm[4:0]}`.
+** If `imm[7:5] != 0`, then `result[11:4] = imm[7:0]`.
 
 +
 The resulting logical encodable regions and step sizes are summarized in the table below:
@@ -61,17 +61,15 @@ The resulting logical encodable regions and step sizes are summarized in the tab
 
 | Byte granular
 | `1, 2, ..., 255`
-| `imm[8] == 0` and `imm[7:0] > 0`
+| `imm[8] == 0` and `imm[7:0] != 0`
 
 .2+<| 8-byte granular
 .2+<| `256, 264, ..., 504`
-| `imm[8] == 1` and `imm[7:4] == 0001` (even multiples of 8)
-
-| `imm[8] == 1` and `imm[7:4] == 0000` (odd multiples of 8)
+| `imm[8] == 1` and `imm[7:5] == 0` (multiples of 8)
 
 .2+<| 16-byte granular
 | `512, 528, ..., 4080`
-| `imm[8] == 1` and `imm[7:4] >= 0010`
+| `imm[8] == 1` and `imm[7:5] != 0`
 
 | `4096`
 | `imm[8:0] == 0`
